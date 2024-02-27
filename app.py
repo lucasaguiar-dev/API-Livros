@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 # from flasgger import Swagger, swag_from
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 from dotenv import load_dotenv
 import os
 
@@ -9,6 +10,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("url_postgresql")
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 class Books(db.Model): 
     id = db.Column(db.Integer, primary_key = True)
@@ -17,6 +19,12 @@ class Books(db.Model):
     published_year = db.Column(db.Integer, nullable = False)
     obs = db.Column(db.String(500), nullable = True) 
 
+
+class BookSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Books
+
+book_schema = BookSchema(many=True)
 
 # Rota para criar um novo livro
 @app.route("/books", methods=["POST"])
@@ -32,16 +40,7 @@ def add_book():
 @app.route("/books", methods=["GET"])
 def get_all_books():
     books = Books.query.all()
-    result = []
-    for book in books:
-        book_data = {
-            "id": book.id,
-            "title": book.title,
-            "author": book.author,
-            "published_year": book.published_year,
-            "obs": book.obs
-        }
-        result.append(book_data)
+    result = book_schema.dump(books)
     return jsonify({"books": result})
 
 if __name__ == "__main__":
