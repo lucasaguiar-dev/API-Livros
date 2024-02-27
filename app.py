@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 # from flasgger import Swagger, swag_from
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -18,9 +18,31 @@ class Books(db.Model):
     obs = db.Column(db.String(500), nullable = True) 
 
 
-@app.route("/")
-def home():
-    return ("hello world")
+# Rota para criar um novo livro
+@app.route("/books", methods=["POST"])
+def add_book():
+    data = request.get_json()
+    new_book = Books(title=data['title'], author=data['author'], published_year=data['published_year'], obs=data['obs'])
+    db.session.add(new_book)
+    db.session.commit()
+    return jsonify({"message": "Livro criado com sucesso"}), 201
+
+
+# Rota para obter todos os livros
+@app.route("/books", methods=["GET"])
+def get_all_books():
+    books = Books.query.all()
+    result = []
+    for book in books:
+        book_data = {
+            "id": book.id,
+            "title": book.title,
+            "author": book.author,
+            "published_year": book.published_year,
+            "obs": book.obs
+        }
+        result.append(book_data)
+    return jsonify({"books": result})
 
 if __name__ == "__main__":
     app.run(debug=True)
