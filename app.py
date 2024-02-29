@@ -8,7 +8,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("url_postgresql")
+app.config['SQLALCHEMY_DATABASE_URI'] = (os.getenv("url_postgresql"))
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -43,7 +43,7 @@ def get_all_books():
     result = book_schema.dump(books)
     return jsonify({"books": result})
 
-@app.route("/books/<int:id>", methods=["GET"])
+@app.route("/books/<int:id>", methods=["GET"])  # Adicionei <int:id> para garantir que o ID seja interpretado como um número inteiro
 def get_book_by_id(id):
     try:
         # Tentar buscar o livro pelo ID na db
@@ -51,7 +51,7 @@ def get_book_by_id(id):
         if book is None:
             raise ValueError("Não encontramos esse livro... :(")
         
-        result = book_schema.dump(book)
+        result = book_schema.dump([book])
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 404
