@@ -43,5 +43,18 @@ def get_all_books():
     result = book_schema.dump(books)
     return jsonify({"books": result})
 
+@app.route("/books/<int:id>", methods=["GET"])
+def get_book_by_id(id):
+    try:
+        # Tentar buscar o livro pelo ID na db
+        book = Books.query.get(id)
+        if book is None:
+            raise ValueError("Não encontramos esse livro... :(")
+        
+        result = book_schema.dump(book)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
+
 if __name__ == "__main__":
     app.run(debug=True)
