@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 # from flasgger import Swagger, swag_from
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -8,7 +8,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("url_postgresql")
+app.config['SQLALCHEMY_DATABASE_URI'] = (os.getenv("url_postgresql"))
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -50,12 +50,34 @@ def get_book_by_id(id):
         book = Books.query.get(id)
         if book is None:
             raise ValueError("Não encontramos esse livro... :(")
-        else:
-            result = book_schema.dump([book])
-            return jsonify(result), 200
+        
+        result = book_schema.dump([book])
+        return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 404
+    
 
+@app.route("/books/<int:id>", methods=["PUT"]) 
+def update_book(id): 
+    try:
+        # Tentar editar um livro na DataBase
+        book = Books.query.get(id)
+        if not book:
+            abort(404, description="Book not found.")
+
+        data = request.get_json()
+        
+        # Verificar se os campos existem no JSON antes de atribuir
+        book.title = data.get('title', book.title)
+        book.author = data.get('author', book.author)
+        book.published_year = data.get('published_year', book.published_year)
+        book.obs = data.get('obs', book.obs)
+
+        db.session.commit()
+        return jsonify({'message': 'Book updated successfully! :)'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'Failed to update book. Error: {str(e)}'}), 500
 
 @app.route("/books/delete/<int:id>", methods=["DELETE"])
 def delete_his_book_by_id(id):
