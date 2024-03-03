@@ -13,7 +13,7 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 class Books(db.Model): 
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key = True) #pode colocar o id, sendo a primary_key = false or true? importa somente a posição do parâmetro ou o nome tbm?
     title = db.Column(db.String(70), nullable = False)
     author = db.Column(db.String(50), nullable = False)
     published_year = db.Column(db.Integer, nullable = False)
@@ -42,6 +42,36 @@ def get_all_books():
     books = Books.query.all()
     result = book_schema.dump(books)
     return jsonify({"books": result})
+
+@app.route("/books/<int:id>", methods=["GET"])  # Adicionei <int:id> para garantir que o ID seja interpretado como um número inteiro
+def get_book_by_id(id):
+    try:
+        # Tentar buscar o livro pelo ID na db
+        book = Books.query.get(id)
+        if book is None:
+            raise ValueError("Não encontramos esse livro... :(")
+        else:
+            result = book_schema.dump([book])
+            return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
+
+
+@app.route("/books/delete/<int:id>", methods=["DELETE"])
+def delete_his_book_by_id(id):
+    try:
+        del_book = Books.query.get(id)
+        if del_book is None:
+            return jsonify("error", "Livro não encontrado!"), 404
+        else: 
+            db.session.delete(del_book)
+            db.session.commit()
+            result = book_schema.dump([del_book])
+            return jsonify({f"Livro deletado com sucesso!": result}), 200
+    
+    except Exception as e:
+        return jsonify("erro","Infelizmente ocorreu um erro! Não foi possivel deletar esse livro!"), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
