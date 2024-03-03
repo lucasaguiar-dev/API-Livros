@@ -12,6 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (os.getenv("url_postgresql"))
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+
 class Books(db.Model): 
     id = db.Column(db.Integer, primary_key = True) #pode colocar o id, sendo a primary_key = false or true? importa somente a posição do parâmetro ou o nome tbm?
     title = db.Column(db.String(70), nullable = False)
@@ -26,7 +27,8 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
 
 book_schema = BookSchema(many=True)
 
-# Rota para criar um novo livro
+
+# Route for creating a new book
 @app.route("/books", methods=["POST"])
 def add_book():
     data = request.get_json()
@@ -36,13 +38,15 @@ def add_book():
     return jsonify({"message": "Livro criado com sucesso"}), 201
 
 
-# Rota para obter todos os livros
+# Route for getting all books
 @app.route("/books", methods=["GET"])
 def get_all_books():
     books = Books.query.all()
     result = book_schema.dump(books)
     return jsonify({"books": result})
 
+
+# Route for getting a book by id
 @app.route("/books/<int:id>", methods=["GET"])  # Adicionei <int:id> para garantir que o ID seja interpretado como um número inteiro
 def get_book_by_id(id):
     try:
@@ -57,6 +61,7 @@ def get_book_by_id(id):
         return jsonify({"error": str(e)}), 404
     
 
+# Route for modifying a book
 @app.route("/books/<int:id>", methods=["PUT"]) 
 def update_book(id): 
     try:
@@ -79,6 +84,8 @@ def update_book(id):
         db.session.rollback()
         return jsonify({'message': f'Failed to update book. Error: {str(e)}'}), 500
 
+
+# Route for deleting a book
 @app.route("/books/delete/<int:id>", methods=["DELETE"])
 def delete_his_book_by_id(id):
     try:
