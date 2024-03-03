@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 # from flasgger import Swagger, swag_from
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -61,7 +61,9 @@ def get_book_by_id(id):
 def update_book(id): 
     try:
         # Tentar editar um livro na DataBase
-        book = Books.query.get_or_404(id)
+        book = Books.query.get(id)
+        if not book:
+            abort(404, description="Book not found.")
 
         data = request.get_json()
         
