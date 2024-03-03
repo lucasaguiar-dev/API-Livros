@@ -63,11 +63,11 @@ def delete_his_book_by_id(id):
         del_book = Books.query.get(id)
         if del_book is None:
             return jsonify("error", "Livro não encontrado!"), 404
-        else: 
-            db.session.delete(del_book)
-            db.session.commit()
-            result = book_schema.dump([del_book])
-            return jsonify({f"Livro deletado com sucesso!": result}), 200
+
+        db.session.delete(del_book)
+        db.session.commit()
+        result = book_schema.dump([del_book])
+        return jsonify({f"Livro deletado com sucesso!": result}), 200
     
     except Exception as e:
         return jsonify("erro","Infelizmente ocorreu um erro! Não foi possivel deletar esse livro!"), 500
