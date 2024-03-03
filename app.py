@@ -55,6 +55,26 @@ def get_book_by_id(id):
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 404
+    
+
+@app.route("/books/<int:id>", methods=["PUT"]) 
+def update_book(id): 
+    # Tentar editar um livro na DataBase
+    book = Books.query.get_or_404(id)
+
+    data = request.get_json()
+    book.title = data['title']
+    book.author = data['author']
+    book.published_year = data['published_year']
+    book.obs = data['obs']
+
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Book updated successfully! :)'}), 200
+    except: 
+        db.session.rollback()
+        return jsonify({'message' : 'Failed to update book. :()'}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
