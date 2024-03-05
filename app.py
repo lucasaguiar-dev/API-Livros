@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, abort
-# from flasgger import Swagger, swag_from
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flasgger import Swagger, swag_from
@@ -9,7 +8,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-Swagger(app)  # Inicializa o Swagger
+Swagger(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = (os.getenv("url_postgresql"))
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
