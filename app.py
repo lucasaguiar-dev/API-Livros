@@ -35,9 +35,13 @@ book_schema = BookSchema(many=True)
 def add_book():
     data = request.get_json()
     new_book = Books(title=data['title'], author=data['author'], published_year=data['published_year'], obs=data['obs'])
-    db.session.add(new_book)
-    db.session.commit()
-    return jsonify({"message": "Livro criado com sucesso"}), 201
+    try:
+        db.session.add(new_book)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+    return jsonify({"Perfect": "Creat Successfully"}), 201
 
 
 # Route for getting all books
@@ -45,6 +49,8 @@ def add_book():
 def get_all_books():
     books = Books.query.all()
     result = book_schema.dump(books)
+    if books == []:
+        return jsonify({"Empty List": "Nenhum livro encontrado"}), 200
     return jsonify({"books": result})
 
 
@@ -55,12 +61,12 @@ def get_book_by_id(id):
         # Tentar buscar o livro pelo ID na db
         book = Books.query.get(id)
         if book is None:
-            raise ValueError("Não encontramos esse livro... :(")
+            raise IndexError("This book not found... :(")
         
         result = book_schema.dump([book])
         return jsonify(result), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 404
+        return jsonify({"Error": str(e)}), 404
     
 
 # Route for modifying a book
@@ -93,7 +99,7 @@ def delete_his_book_by_id(id):
     try:
         del_book = Books.query.get(id)
         if del_book is None:
-            return jsonify("error", "Livro não encontrado!"), 404
+            return jsonify("Error", "This book not found!"), 404
 
         db.session.delete(del_book)
         db.session.commit()
@@ -101,7 +107,7 @@ def delete_his_book_by_id(id):
         return jsonify({f"Livro deletado com sucesso!": result}), 200
     
     except Exception as e:
-        return jsonify("erro","Infelizmente ocorreu um erro! Não foi possivel deletar esse livro!"), 500
+        return jsonify("Error","Unfortunately an error occurred. Could not delete this book!"), 500
 
 
 if __name__ == "__main__":
