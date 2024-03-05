@@ -1,0 +1,123 @@
+swagger: '2.0'
+info:
+  title: 'Books API'
+  description: 'API for managing books.'
+  version: '1.0.0'
+host: 'localhost:5000'
+basePath: '/'
+schemes:
+  - 'http'
+
+paths:
+  /books:
+    post:
+      summary: Add a new book
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/BookInput'
+      responses:
+        201:
+          description: Book created successfully
+        400:
+          description: Invalid input data
+  #   get:
+  #     summary: Get all books
+  #     responses:
+  #       200:
+  #         description: List of books
+  #         schema:
+  #           type: object
+  #           properties:
+  #             books:
+  #               type: array
+  #               items:
+  #                 $ref: '#/definitions/BookOutput'
+
+  # /books/{id}:
+  #   get:
+  #     summary: Get a book by ID
+  #     parameters:
+  #       - $ref: '#/parameters/id'
+  #     responses:
+  #       200:
+  #         description: Book found
+  #         schema:
+  #           $ref: '#/definitions/BookOutput'
+  #       404:
+  #         description: Book not found
+  #   put:
+  #     summary: Update a book by ID
+  #     parameters:
+  #       - $ref: '#/parameters/id'
+  #       - in: body
+  #         name: body
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/BookInput'
+  #     responses:
+  #       200:
+  #         description: Book updated successfully
+  #       404:
+  #         description: Book not found
+  #       500:
+  #         description: Failed to update book
+
+  # /books/delete/{id}:
+  #   delete:
+  #     summary: Delete a book by ID
+  #     parameters:
+  #       - $ref: '#/parameters/id'
+  #     responses:
+  #       200:
+  #         description: Book deleted successfully
+  #       404:
+  #         description: Book not found
+  #       500:
+  #         description: Failed to delete book
+
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: The ID of the book.
+    example: 1
+
+# definitions:
+#   BookInput:
+#     type: object
+#     properties:
+#       title:
+#         type: string
+#         example: "The Great Gatsby"
+#       author:
+#         type: string
+#         example: "F. Scott Fitzgerald"
+#       published_year:
+#         type: integer
+#         example: 1925
+#       obs:
+#         type: string
+#         example: "A classic American novel."
+
+#   BookOutput:
+#     type: object
+#     properties:
+#       id:
+#         type: integer
+#         example: 1
+#       title:
+#         type: string
+#         example: "The Great Gatsby"
+#       author:
+#         type: string
+#         example: "F. Scott Fitzgerald"
+#       published_year:
+#         type: integer
+#         example: 1925
+#       obs:
+#         type: string
+#         example: "A classic American novel."

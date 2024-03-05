@@ -2,12 +2,14 @@ from flask import Flask, request, jsonify, abort
 # from flasgger import Swagger, swag_from
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flasgger import Swagger, swag_from
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
 app = Flask(__name__)
+Swagger(app)  # Inicializa o Swagger
 app.config['SQLALCHEMY_DATABASE_URI'] = (os.getenv("url_postgresql"))
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -30,6 +32,7 @@ book_schema = BookSchema(many=True)
 
 # Route for creating a new book
 @app.route("/books", methods=["POST"])
+@swag_from('swagger_config.yml')
 def add_book():
     data = request.get_json()
     new_book = Books(title=data['title'], author=data['author'], published_year=data['published_year'], obs=data['obs'])
