@@ -13,7 +13,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (os.getenv("url_postgresql")) # Configur
 db = SQLAlchemy(app) 
 ma = Marshmallow(app) 
 
-
 # This class below represents a book model, which contains : id, title, author and observations
 class Books(db.Model): 
     id = db.Column(db.Integer, primary_key = True) 
@@ -30,12 +29,14 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Books
 
+
 # Instantiate a BookSchema object with the parameter many=True, indicating that it will handle multiple books.
 book_schema = BookSchema(many=True) 
 
+
 # Route to create a new book using the POST method
 @app.route("/books", methods=["POST"])
-@swag_from('swagger_config.yml')
+@swag_from('swagger_config.yml') 
 def add_book():
 # This function takes no arguments and performs the creation of a book in the DataBase
     data = request.get_json()
@@ -47,14 +48,17 @@ def add_book():
 
 # Route to pick all the books from DataBase with GET method
 @app.route("/books", methods=["GET"])
+@swag_from('swagger_config.yml') 
 def get_all_books():
 # This function takes no arguments and performs the book's picking from the DataBase
     books = Books.query.all()
     result = book_schema.dump(books)
     return jsonify({"books": result})
 
+
 # Route to pick a book from DataBase by its ID with GET method
 @app.route("/books/<int:id>", methods=["GET"])  # We have added <int:id> to insure taht the ID will be known as a integer
+@swag_from('swagger_config.yml') 
 def get_book_by_id(id):
 # This function has the ID as an argument and performs the book picking from the DataBase
     try:
@@ -68,8 +72,10 @@ def get_book_by_id(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 404 # Returning error in case of exception
     
+
 # Route to edit book data from DataBase with PUT method
 @app.route("/books/<int:id>", methods=["PUT"]) 
+@swag_from('swagger_config.yml')
 # This function has the ID as an argument and perform the book update in the DataBase
 def update_book(id): 
     try:
@@ -95,6 +101,7 @@ def update_book(id):
 
 # Route for deleting a book
 @app.route("/books/delete/<int:id>", methods=["DELETE"])
+@swag_from('swagger_config.yml')
 def delete_his_book_by_id(id):
     try:
         del_book = Books.query.get(id)
@@ -108,6 +115,7 @@ def delete_his_book_by_id(id):
     
     except Exception as e:
         return jsonify("erro","Infelizmente ocorreu um erro! Não foi possivel deletar esse livro!"), 500
+
 
 # Running the application, debug true for modifying in real time
 if __name__ == "__main__":
