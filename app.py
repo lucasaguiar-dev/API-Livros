@@ -52,7 +52,7 @@ def get_all_books():
     books = Books.query.all()
     result = book_schema.dump(books)
     if books == []:
-        return jsonify({"Empty List": "Nenhum livro encontrado"}), 200
+        return jsonify({"Empty List": "Book not found!"}), 200
     return jsonify({"books": result})
 
 # Route to pick a book from DataBase by its ID with GET method
@@ -106,7 +106,7 @@ def delete_his_book_by_id(id):
         db.session.delete(del_book)
         db.session.commit()
         result = book_schema.dump([del_book])
-        return jsonify({f"Livro deletado com sucesso!": result}), 200
+        return jsonify({f"Book created successfully!": result}), 200
     
     except Exception as e:
         return jsonify("Error","Unfortunately an error occurred. Could not delete this book!"), 500
