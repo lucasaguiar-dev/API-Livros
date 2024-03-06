@@ -1,20 +1,20 @@
-# Importing all the libraries
-from flask import Flask, request, jsonify, abort 
-# from flasgger import Swagger, swag_from
+from flask import Flask, request, jsonify, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flasgger import Swagger, swag_from
 from dotenv import load_dotenv
 import os
 
 load_dotenv() # Loading the environment variables from a file named .env into the app.py
 
 app = Flask(__name__) # Initialize a Flask application
+Swagger(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = (os.getenv("url_postgresql")) # Configure the SQLAlchemy database URI using environment variables
-# The URI is retrieved from the "url_postgresql" variable defined in the .env file
 db = SQLAlchemy(app) 
 ma = Marshmallow(app) 
 
-# This class below represents a book model, whic contains : id, title, author and observations
+
+# This class below represents a book model, which contains : id, title, author and observations
 class Books(db.Model): 
     id = db.Column(db.Integer, primary_key = True) 
     title = db.Column(db.String(70), nullable = False) 
@@ -35,6 +35,7 @@ book_schema = BookSchema(many=True)
 
 # Route to create a new book using the POST method
 @app.route("/books", methods=["POST"])
+@swag_from('swagger_config.yml')
 def add_book():
 # This function takes no arguments and performs the creation of a book in the DataBase
     data = request.get_json()
@@ -91,6 +92,23 @@ def update_book(id):
         db.session.rollback()
         return jsonify({'message': f'Failed to update book. Error: {str(e)}'}), 500 # Error in case of exception
 
-# Running the application
+
+# Route for deleting a book
+@app.route("/books/delete/<int:id>", methods=["DELETE"])
+def delete_his_book_by_id(id):
+    try:
+        del_book = Books.query.get(id)
+        if del_book is None:
+            return jsonify("error", "Livro não encontrado!"), 404
+
+        db.session.delete(del_book)
+        db.session.commit()
+        result = book_schema.dump([del_book])
+        return jsonify({f"Livro deletado com sucesso!": result}), 200
+    
+    except Exception as e:
+        return jsonify("erro","Infelizmente ocorreu um erro! Não foi possivel deletar esse livro!"), 500
+
+# Running the application, debug true for modifying in real time
 if __name__ == "__main__":
     app.run(debug=True) 
